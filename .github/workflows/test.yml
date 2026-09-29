@@ -1,0 +1,56 @@
+name: Test and verify release
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Python ${{ matrix.python }} / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python: ['3.10', '3.12', '3.13']
+        include:
+          - os: macos-latest
+            python: '3.12'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install test and build requirements
+        run: python -m pip install -r requirements-build.txt
+      - name: Install source without changing the frozen build inputs
+        run: python -m pip install --no-build-isolation -e .
+      - name: Offline tests (no model calls)
+        run: python -m pytest -q
+      - name: CLI and frozen protocol
+        run: |
+          swiftapi-void --help
+          swiftapi-void protocol --json
+      - name: Compare source with the public PyPI release
+        run: python .github/verify_release.py
+
+  distributions:
+    name: Rebuild published distributions
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12.8'
+      - run: python -m pip install -r requirements-build.txt
+      - run: python scripts/build_release.py
+      - run: python -m twine check dist/*.whl dist/*.tar.gz
+      - run: python .github/verify_release.py --built dist

@@ -1,0 +1,7 @@
+include README.md
+include PROTOCOL.md
+include LICENSE
+include .env.example
+include requirements-build.txt
+recursive-include scripts *.py
+recursive-include tests *.py

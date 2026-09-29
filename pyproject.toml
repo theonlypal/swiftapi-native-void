@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools==80.9.0", "wheel==0.45.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "swiftapi-native-void"
+version = "0.1.0"
+description = "One-command reproduction and verification of Rayan Pal's canonical model-native noncontinuation protocol."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{name = "Rayan Pal"}]
+keywords = ["ai", "llm", "evaluation", "audit", "noncontinuation", "void", "openai", "anthropic"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Operating System :: OS Independent",
+]
+dependencies = []
+
+[project.urls]
+Research = "https://getswiftapi.com/research"
+Matrix = "https://doi.org/10.5281/zenodo.21696066"
+Evidence = "https://github.com/theonlypal/void-matrix-complete-analysis"
+Runner = "https://github.com/theonlypal/void-matrix"
+CrossModelPaper = "https://doi.org/10.5281/zenodo.18976656"
+
+[project.scripts]
+swiftapi-void = "swiftapi_native_void.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
